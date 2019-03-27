@@ -1,28 +1,14 @@
 <template>
 <div id="app">
     <router-view />
-    <span>123abcde</span>
+    <span>123</span>
+    <p>abcd</p>
 </div>
 </template>
 
-<style lang="scss">
-
-</style>
-
 <script>
-import {
-    mapGetters
-} from 'vuex'
-
 export default {
-    computed: {
-        ...mapGetters(['test'])
-    },
-    mounted() {
-        this.$store.dispatch('setTest', 100).then(() => {
-            console.log(this.test);
-        })
-    },
+    
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -33,5 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+@import './assets/styles/global.scss';
+    #app {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+    }
 </style>
