@@ -1,6 +1,9 @@
 const book = {
-    test: (state) => {
-        return state.book.test
+    fileName: (state) => {
+        return state.book.fileName
+    },
+    menuVisible: (state) => {
+        return state.book.menuVisible
     }
 }
 
