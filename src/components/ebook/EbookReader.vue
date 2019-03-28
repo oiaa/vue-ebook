@@ -27,10 +27,14 @@ export default {
             }
         },
         toggleTitleAndMenu () {
+            if (this.menuVisible) {
+                this.setSettingVisible(-1);
+            }
             this.setMenuVisible(!this.menuVisible);
         },
         hideTitleAndMenu () {
             this.setMenuVisible(false);
+            this.setSettingVisible(-1);
         },
         initEpub() {
             const url = 'http://localhost:8081/epub/' + this.fileName + '.epub';

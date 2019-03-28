@@ -1,29 +1,38 @@
 <template>
-<transition name="slide-up">
-    <div class="menu-wrapper" v-show="menuVisible">
-        <div class="icon-wrapper">
-            <span class="icon-menu" @click="showSetting(3)"></span>
+<div>
+    <transition name="slide-up">
+        <div class="menu-wrapper" v-show="menuVisible" :class="{ 'hide-box-shadow': !menuVisible || settingVisible >= 0 }">
+            <div class="icon-wrapper">
+                <span class="icon-menu" @click="showSetting(3)"></span>
+            </div>
+            <div class="icon-wrapper">
+                <span class="icon-progress" @click="showSetting(2)"></span>
+            </div>
+            <div class="icon-wrapper">
+                <span class="icon-bright" @click="showSetting(1)"></span>
+            </div>
+            <div class="icon-wrapper">
+                <span class="icon-A" @click="showSetting(0)"></span>
+            </div>
         </div>
-        <div class="icon-wrapper">
-            <span class="icon-progress" @click="showSetting(2)"></span>
-        </div>
-        <div class="icon-wrapper">
-            <span class="icon-bright" @click="showSetting(1)"></span>
-        </div>
-        <div class="icon-wrapper">
-            <span class="icon-A" @click="showSetting(0)"></span>
-        </div>
-    </div>
-</transition>
+    </transition>
+    <ebook-setting-font></ebook-setting-font>
+</div>
 </template>
 
 <script>
-import { ebookMixin } from '../../utils/mixin.js';
+import EbookSettingFont from './EbookSettingFont.vue';
+import {
+    ebookMixin
+} from '../../utils/mixin.js';
 export default {
     mixins: [ebookMixin],
+    components: {
+        EbookSettingFont
+    },
     methods: {
-        showSetting (key) {
-
+        showSetting(key) {
+            this.setSettingVisible(key);
         }
     },
 }
@@ -31,6 +40,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../assets/styles/global.scss';
+
 .menu-wrapper {
     position: absolute;
     bottom: 0;

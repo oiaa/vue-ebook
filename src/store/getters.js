@@ -4,7 +4,13 @@ const book = {
     },
     menuVisible: (state) => {
         return state.book.menuVisible
-    }
+    },
+    settingVisible: (state) => {
+        return state.book.settingVisible
+    },
+    defaultFontSize: (state) => {
+        return state.book.defaultFontSize
+    },
 }
 
 export default book;
