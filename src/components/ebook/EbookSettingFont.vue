@@ -16,6 +16,16 @@
             </div>
             <div class="preview" :style="{fontSize: fontSizeList[fontSizeList.length - 1].fontSize + 'px'}">A</div>
         </div>
+        <div class="setting-font-family" @click="showFontFamilyPopup">
+            <div class="setting-font-family-text-wrapper">
+                <span class="setting-font-family-text">
+                    {{ defaultFontFamily }}
+                </span>
+            </div>
+            <div class="setting-font-family-icon-wrapper">
+                <span class="icon-forward"></span>
+            </div>
+        </div>
     </div>
 </transition>
 </template>
@@ -34,6 +44,9 @@ export default {
         setFontSize(fontSize) {
             this.setDefaultFontSize(fontSize);
             this.currentBook.rendition.themes.fontSize(fontSize + 'px');
+        },
+        showFontFamilyPopup() {
+            this.setFontFamilyVisible(true);
         }
     },
 }
@@ -42,6 +55,8 @@ export default {
 <style lang="scss" scoped>
 @import '../../assets/styles/global.scss';
 .setting-wrapper {
+    display: flex;
+    flex-direction: column;
     position: absolute;
     bottom: px2rem(48);
     left: 0;
@@ -53,6 +68,7 @@ export default {
 
     .setting-font-size {
         display: flex;
+        flex: 2;
         height: 100%;
 
         .preview {
@@ -119,6 +135,20 @@ export default {
                     }
                 }
             }
+        }
+    }
+
+    .setting-font-family {
+        flex: 1;
+        font-size: px2rem(14);
+        @include center;
+
+        .setting-font-family-text-wrapper {
+            @include center;
+        }
+
+        .setting-font-family-icon-wrapper {
+            @include center;
         }
     }
 }
