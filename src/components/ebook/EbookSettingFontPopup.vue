@@ -11,6 +11,7 @@
                 <div class="ebook-popup-item" 
                     v-for="(item, index) in fontFamilyList" 
                     :key="index"
+                    @click="setFontFamily(item.font)"
                 >
                     <div class="ebook-popup-item-text" 
                         :class="{'selected': isSelected(item)}"
@@ -29,6 +30,7 @@
 <script>
 import { ebookMixin } from '../../utils/mixin.js';
 import { FONT_FAMILY } from '../../utils/book.js';
+import { saveFontFamily } from '../../utils/localStorage.js';
 
 export default {
     mixins: [ebookMixin],
@@ -38,12 +40,24 @@ export default {
         }
     },
     methods: {
+        setFontFamily(font) {
+            this.setDefaultFontFamily(font);
+            saveFontFamily(this.fileName, font);
+            if (font === 'Default') {
+                this.currentBook.rendition.themes.font('Times New Roman');                
+            } else {
+                this.currentBook.rendition.themes.font(font);
+            }
+        },
         isSelected (item) {
             return this.defaultFontFamily === item.font
         },
         hide () {
             this.setFontFamilyVisible(false);
         }
+    },
+    mounted() {
+        
     },
 }
 </script>
