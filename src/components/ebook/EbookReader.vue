@@ -81,10 +81,7 @@ export default {
             });
             this.rendition.themes.select(defaultTheme);
         },
-        initEpub() {
-            const url = process.env.VUE_APP_RES_URL + '/epub/' + this.fileName + '.epub';
-            this.book = new Epub(url);
-            this.setCurrentBook(this.book);
+        initRendition() {
             this.rendition = this.book.renderTo('read', {
                 width: window.innerWidth,
                 height: window.innerHeight
@@ -96,6 +93,19 @@ export default {
                 this.initFontSize();
                 this.initGlobalStyle();
             });
+            this.rendition.hooks.content.register((contents) => {
+                //向书籍文件添加字体
+                Promise.all([
+                    contents.addStylesheet(`${ process.env.VUE_APP_RES_URL }/fonts/daysOne.css`),
+                    contents.addStylesheet(`${ process.env.VUE_APP_RES_URL }/fonts/cabin.css`),
+                    contents.addStylesheet(`${ process.env.VUE_APP_RES_URL }/fonts/montserrat.css`),
+                    contents.addStylesheet(`${ process.env.VUE_APP_RES_URL }/fonts/tangerine.css`)
+                ]).then(() => {
+                    console.log('字体全部加载完毕');
+                })
+            })
+        },
+        initGesture() {
             this.rendition.on('touchstart', (event) => {
                 this.touchStartX = event.changedTouches[0].clientX;
                 this.touchTime = event.timeStamp;
@@ -115,16 +125,20 @@ export default {
                 // 在新版本的浏览器中如果我们给document绑定touchmove或者touchstart事件的监听器，这个passive是会被默认设置为true以提高性能
                 // event.stopPropagation();
             });
-            this.rendition.hooks.content.register((contents) => {
-                //向书籍文件添加字体
-                Promise.all([
-                    contents.addStylesheet(`${ process.env.VUE_APP_RES_URL }/fonts/daysOne.css`),
-                    contents.addStylesheet(`${ process.env.VUE_APP_RES_URL }/fonts/cabin.css`),
-                    contents.addStylesheet(`${ process.env.VUE_APP_RES_URL }/fonts/montserrat.css`),
-                    contents.addStylesheet(`${ process.env.VUE_APP_RES_URL }/fonts/tangerine.css`)
-                ]).then(() => {
-                    console.log('字体全部加载完毕');
-                })
+        },
+        initEpub() {
+            const url = process.env.VUE_APP_RES_URL + '/epub/' + this.fileName + '.epub';
+            this.book = new Epub(url);
+            this.setCurrentBook(this.book);
+            this.initRendition();
+            this.initGesture();
+            // 分页, 在book完全解析后调用
+            this.book.ready.then(() => {
+                //默认一页是750字
+                return this.book.locations.generate(750 * (window.innerWidth / 375) * (getFontSize(this.fileName) / 16))
+            }).then((locations) => {
+                // console.log(locations);
+                this.setBookAvailable(true);
             })
         }
     },
