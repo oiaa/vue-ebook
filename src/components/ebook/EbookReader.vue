@@ -17,7 +17,9 @@ import {
     getFontFamily,
     saveFontFamily,
     getFontSize,
-    saveFontSize
+    saveFontSize,
+    getTheme,
+    saveTheme
 } from '../../utils/localStorage.js';
 
 global.ePub = Epub;
@@ -66,6 +68,18 @@ export default {
                 this.setDefaultFontSize(fontSize);
             }
         },
+        initTheme () {
+            let defaultTheme = getTheme(this.fileName);
+            if (!defaultTheme) {
+                defaultTheme = this.themeList[0].name;
+                this.setDefaultTheme(defaultTheme);
+                saveTheme(this.fileName, defaultTheme);
+            }
+            this.themeList.forEach((theme) => {
+                this.rendition.themes.register(theme.name, theme.style);
+            });
+            this.rendition.themes.select(defaultTheme);
+        },
         initEpub() {
             const url = 'http://localhost:8081/epub/' + this.fileName + '.epub';
             this.book = new Epub(url);
@@ -76,6 +90,7 @@ export default {
             });
             this.rendition.display().then(() => {
                 //书籍渲染完成衙，在缓存中获取字体字号
+                this.initTheme();
                 this.initFontFamily();
                 this.initFontSize();
             });
