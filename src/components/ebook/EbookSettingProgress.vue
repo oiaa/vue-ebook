@@ -3,7 +3,7 @@
     <div class="setting-wrapper" v-show="menuVisible && settingVisible === 2">
         <div class="setting-progress">
             <div class="read-time-wrapper">
-                <!-- <span class="read-time-text">{{getReadTime()}}</span> -->
+                <span class="read-time-text">{{getReadTime()}}</span>
                 <span class="icon-forward"></span>
             </div>
             <div class="progress-wrapper">
@@ -34,6 +34,8 @@
 
 <script>
 import { ebookMixin } from '../../utils/mixin'
+import { getReadTime } from '../../utils/localStorage';
+
 export default {
     mixins: [ebookMixin],
     computed: {
@@ -60,7 +62,7 @@ export default {
         },
         displayProgress() { // 翻书到进度条位置
             const cfi = this.currentBook.locations.cfiFromPercentage(this.progress / 100);
-            this.currentBook.rendition.display(cfi);
+            this.display(cfi);
         },
         updateProgressBg() { //进度条背景
             this.$refs.progress.style.backgroundSize = `${ this.progress }% 100%`
@@ -83,15 +85,19 @@ export default {
         displaySection() { //翻书到指定章节
             const sectionInfo = this.currentBook.section(this.section);//上一章信息
                 if (sectionInfo && sectionInfo.href) {
-                    this.currentBook.rendition.display(sectionInfo.href).then(() => {
-                        this.refreshLocation();
-                    })
+                    this.display(sectionInfo.href);
                 }
         },
-        refreshLocation() { //更新vuex中的progress进度
-            const currentLocation = this.currentBook.rendition.currentLocation();
-            const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi); //进度小数
-            this.setProgress(Math.floor( progress * 100 ));
+        getReadTime() {
+            return this.$t('book.haveRead').replace('$1', this.getReadTimeByMinute(this.fileName))
+        },
+        getReadTimeByMinute() {
+            const readTime = getReadTime(this.fileName);
+            if (!readTime) {
+                return 0;
+            } else {
+                return Math.ceil(readTime / 60)
+            }
         }
     },
     updated() {

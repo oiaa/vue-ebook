@@ -19,7 +19,8 @@ import {
     getFontSize,
     saveFontSize,
     getTheme,
-    saveTheme
+    saveTheme,
+    getLocation
 } from '../../utils/localStorage.js';
 import { addCss } from '../../utils/book.js';
 
@@ -29,13 +30,17 @@ export default {
     methods: {
         prevPage() {
             if (this.rendition) {
-                this.rendition.prev();
+                this.rendition.prev().then(() => {
+                    this.refreshLocation();
+                })
                 this.hideTitleAndMenu();
             }
         },
         nextPage() {
             if (this.rendition) {
-                this.rendition.next();
+                this.rendition.next().then(() => {
+                    this.refreshLocation();
+                })
                 this.hideTitleAndMenu();
             }
         },
@@ -86,13 +91,13 @@ export default {
                 width: window.innerWidth,
                 height: window.innerHeight
             });
-            this.rendition.display().then(() => {
-                //书籍渲染完成衙，在缓存中获取字体字号
+            const location = getLocation(this.fileName);
+            this.display(location, () => {
                 this.initTheme();
                 this.initFontFamily();
                 this.initFontSize();
                 this.initGlobalStyle();
-            });
+            })
             this.rendition.hooks.content.register((contents) => {
                 //向书籍文件添加字体
                 Promise.all([
@@ -137,8 +142,8 @@ export default {
                 //默认一页是750字
                 return this.book.locations.generate(750 * (window.innerWidth / 375) * (getFontSize(this.fileName) / 16))
             }).then((locations) => {
-                // console.log(locations);
                 this.setBookAvailable(true);
+                this.refreshLocation();
             })
         }
     },
