@@ -51,11 +51,6 @@ export default {
             }
             this.setMenuVisible(!this.menuVisible);
         },
-        hideTitleAndMenu() {
-            this.setMenuVisible(false);
-            this.setSettingVisible(-1);
-            this.setFontFamilyVisible(false);
-        },
         initFontFamily() {
             let font = getFontFamily(this.fileName);
             if (!font) {
