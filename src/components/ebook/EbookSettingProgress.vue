@@ -24,7 +24,7 @@
                 </div>
             </div>
             <div class="text-wrapper">
-                <!-- <span class="progress-section-text">{{getSectionName}}</span> -->
+                <span class="progress-section-text">{{getSectionName}}</span>
                 <span class="progress-text">({{bookAvailable ? progress + '%' : $t('book.loading')}})</span>
             </div>
         </div>
@@ -36,19 +36,66 @@
 import { ebookMixin } from '../../utils/mixin'
 export default {
     mixins: [ebookMixin],
+    computed: {
+        getSectionName() { //章节名
+            if (this.section) {
+                const sectionInfo = this.currentBook.section(this.section);
+                if(sectionInfo && sectionInfo.href) {
+                    return this.currentBook.navigation.get(sectionInfo.href).label
+                }
+            }
+        }
+    },
     methods: {
         onProgressChange(progress) { //进度条拖动松手后的调用方法
-
+            this.setProgress(progress).then(() => {
+                this.displayProgress();
+            });
+            this.updateProgressBg();
         },
         onProgressInput(progress) { //拖动过程中调用的方法
-
+            this.setProgress(progress).then(() => {
+                this.updateProgressBg();
+            })
         },
-        prevSection() {
-
+        displayProgress() { // 翻书到进度条位置
+            const cfi = this.currentBook.locations.cfiFromPercentage(this.progress / 100);
+            this.currentBook.rendition.display(cfi);
         },
-        nextSection() {
-            
+        updateProgressBg() { //进度条背景
+            this.$refs.progress.style.backgroundSize = `${ this.progress }% 100%`
+        },
+        prevSection() { //上一章
+            if (this.section > 0 && this.bookAvailable) {
+                this.setSection(this.section - 1).then(() => {
+                    this.displaySection();
+                });
+            }
+        },
+        nextSection() { //下一章
+            //spine是阅读进度，spine.length是总章节字数
+            if (this.section < this.currentBook.spine.length - 1 && this.bookAvailable) {
+                this.setSection(this.section + 1).then(() => {
+                    this.displaySection();
+                })
+            }
+        },
+        displaySection() { //翻书到指定章节
+            const sectionInfo = this.currentBook.section(this.section);//上一章信息
+                if (sectionInfo && sectionInfo.href) {
+                    this.currentBook.rendition.display(sectionInfo.href).then(() => {
+                        this.refreshLocation();
+                    })
+                }
+        },
+        refreshLocation() { //更新vuex中的progress进度
+            const currentLocation = this.currentBook.rendition.currentLocation();
+            const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi); //进度小数
+            this.setProgress(Math.floor( progress * 100 ));
         }
+    },
+    updated() {
+        this.updateProgressBg();
     },
 }
 </script>
@@ -131,7 +178,7 @@ export default {
 
             .progress-section-text {
                 line-height: px2rem(15);
-                // @include ellipsis;
+                @include ellipsis;
             }
 
             .progress-text {
