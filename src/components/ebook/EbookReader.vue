@@ -126,12 +126,25 @@ export default {
                 // event.stopPropagation();
             });
         },
+        parseBook() {
+            // 获取封面图片
+            this.book.loaded.cover.then((cover) => {
+                this.book.archive.createUrl(cover).then((url) => {
+                    this.setCover(url);
+                })
+            });
+            // 获取标题和作者信息
+            this.book.loaded.metadata.then((metadata) => {
+                this.setMetadata(metadata);
+            })
+        },
         initEpub() {
             const url = process.env.VUE_APP_RES_URL + '/epub/' + this.fileName + '.epub';
             this.book = new Epub(url);
             this.setCurrentBook(this.book);
             this.initRendition();
             this.initGesture();
+            this.parseBook();
             // 分页, 在book完全解析后调用
             this.book.ready.then(() => {
                 //默认一页是750字
