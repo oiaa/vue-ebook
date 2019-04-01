@@ -29,6 +29,9 @@ import EbookSlideContents from './EbookSlideContents.vue'
 
 export default {
     mixins: [ebookMixin],
+    components: {
+        EbookSlideContents
+    },
     methods: {
         selectTab(tab) {
             this.currentTab = tab;

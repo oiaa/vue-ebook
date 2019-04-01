@@ -3,7 +3,7 @@
     <div class="setting-wrapper" v-show="menuVisible && settingVisible === 2">
         <div class="setting-progress">
             <div class="read-time-wrapper">
-                <span class="read-time-text">{{getReadTime()}}</span>
+                <span class="read-time-text">{{getReadTimeText()}}</span>
                 <span class="icon-forward"></span>
             </div>
             <div class="progress-wrapper">
@@ -88,17 +88,6 @@ export default {
                     this.display(sectionInfo.href);
                 }
         },
-        getReadTime() {
-            return this.$t('book.haveRead').replace('$1', this.getReadTimeByMinute(this.fileName))
-        },
-        getReadTimeByMinute() {
-            const readTime = getReadTime(this.fileName);
-            if (!readTime) {
-                return 0;
-            } else {
-                return Math.ceil(readTime / 60)
-            }
-        }
     },
     updated() {
         this.updateProgressBg();
