@@ -5,13 +5,19 @@
             <div class="slide-contents-search-icon">
                 <span class="icon-search"></span>
             </div>
-            <input type="text" class="slide-contents-search-input" :placeholder="$t('book.searchHint')" @click="showSearchPage">
+            <input 
+                type="text" 
+                class="slide-contents-search-input" 
+                :placeholder="$t('book.searchHint')" 
+                v-model="searchText"
+                @keyup.enter.exact="search()"
+                @click="showSearchPage">
         </div>
         <div class="slide-contents-search-cancel" v-if="searchVisible"         @click="hideSearchPage">
             {{ $t('book.cancel') }}
         </div>
     </div>
-    <article class="slide-contents-book-wrapper">
+    <article class="slide-contents-book-wrapper" v-show="!searchVisible">
         <section class="slide-contents-book-img-wrapper">
             <img :src="cover" class="slide-contents-book-img">
         </section>
@@ -37,17 +43,30 @@
             </div>
         </section>
     </article>
-    <scroll class="slide-contents-list" ref="scroll" :top="156" :bottom="48">
+    <scroll 
+        class="slide-contents-list" 
+        ref="scroll" 
+        :top="156" 
+        :bottom="48" 
+        v-show="!searchVisible">
         <div class="slide-contents-item" v-for="(item, index) in navigation" :key="index">
             <span class="slide-contents-item-label" 
                 :style="contentItemStyle(item)" 
                 :class="{'selected': section === index}"
-                @click="displayNavigation(item.href)"
+                @click="displayContent(item.href)"
             >
                 {{ item.label }}
             </span>
             <span class="slide-contents-item-page"></span>
         </div>
+    </scroll>
+    <scroll class="slide-search-list" v-show="searchVisible" :top="66" :bottom="48">
+        <div 
+            class="slide-search-item"
+            @click="displayContent(item.cfi, true)" 
+            v-for="(item, index) in searchList" 
+            :key="index" 
+            v-html="item.excerpt"></div>
     </scroll>
 </div>
 </template>
@@ -66,13 +85,37 @@ export default {
     },
     data() {
         return {
-            searchVisible: false
+            searchVisible: false,
+            searchList: null,
+            searchText: ''
         }
     },
     methods: {
-        displayNavigation(target) {
+        doSearch(q) { // 搜索算法-官方
+            return Promise.all(
+                this.currentBook.spine.spineItems.map(
+                    item => item.load(this.currentBook.load.bind(this.currentBook))
+                    .then(item.find.bind(item, q))
+                    .finally(item.unload.bind(item)))
+            ).then(results => Promise.resolve([].concat.apply([], results)));
+        },
+        search() { // 关键字传入与关键字高亮显示
+            if (this.searchText && this.searchText.length > 0) {
+                this.doSearch(this.searchText).then((list) => {
+                    this.searchList = list;
+                    this.searchList.map(item => {
+                        return item.excerpt = item.excerpt.replace(this.searchText, `<span class="content-search-text">${ this.searchText }</span>`)
+                    });
+                });
+            }
+            
+        },
+        displayContent(target, highlight = false) {
             this.display(target, () => {
                 this.hideTitleAndMenu();
+                if (highlight) {
+                    this.currentBook.rendition.annotations.highlight(target)
+                }
             })
         },
         contentItemStyle(item) {
@@ -85,7 +128,12 @@ export default {
         },
         hideSearchPage() {
             this.searchVisible = false;
+            this.searchText = '';
+            this.searchList = null;
         }
+    },
+    mounted() {
+        
     },
 }
 </script>
@@ -212,6 +260,19 @@ export default {
             .slide-contents-item-page {
 
             }
+        }
+    }
+
+    .slide-search-list {
+        width: 100%;
+        padding: 0 px2rem(15);
+        box-sizing: border-box;
+
+        .slide-search-item {
+            font-size: px2rem(14);
+            line-height: px2rem(16);
+            padding: px2rem(20) 0;
+            box-sizing: border-box;
         }
     }
 }
