@@ -38,3 +38,13 @@ $radio: 37.5;
     text-overflow: ellipsis;
     overflow-wrap: break-word;
 }
+
+@mixin scroll {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}

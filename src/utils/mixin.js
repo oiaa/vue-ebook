@@ -73,11 +73,14 @@ export const ebookMixin = {
         },
         refreshLocation() { //更新vuex中的progress进度
             const currentLocation = this.currentBook.rendition.currentLocation();
-            const startCfi = currentLocation.start.cfi;
-            const progress = this.currentBook.locations.percentageFromCfi(startCfi); //进度小数
-            this.setProgress(Math.floor( progress * 100 ));
-            this.setSection(currentLocation.start.index);
-            saveLocation(this.fileName, startCfi);
+            if (currentLocation && currentLocation.start) {
+                const startCfi = currentLocation.start.cfi;
+                const progress = this.currentBook.locations.percentageFromCfi(startCfi); //进度小数
+                this.setProgress(Math.floor(progress * 100));
+                this.setSection(currentLocation.start.index);
+                saveLocation(this.fileName, startCfi);
+            }
+            
         },
         display(target, cb) {
             if (target) {

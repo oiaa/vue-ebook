@@ -22,7 +22,7 @@ import {
     saveTheme,
     getLocation
 } from '../../utils/localStorage.js';
-import { addCss } from '../../utils/book.js';
+import { addCss, flatten } from '../../utils/book.js';
 
 global.ePub = Epub;
 export default {
@@ -136,6 +136,21 @@ export default {
             // 获取标题和作者信息
             this.book.loaded.metadata.then((metadata) => {
                 this.setMetadata(metadata);
+            });
+            // 获取目录信息
+            this.book.loaded.navigation.then((nav) => {
+                let navItem = flatten(nav.toc);
+                function find(item, level = 0) {
+                    if (!item.parent) {
+                        return level;
+                    } else {
+                        return find(navItem.filter(parentItem => parentItem.id === item.parent)[0], ++level)
+                    }
+                }
+                navItem.forEach(item => {
+                    item.level = find(item)
+                });
+                this.setNavigation(navItem);
             })
         },
         initEpub() {
