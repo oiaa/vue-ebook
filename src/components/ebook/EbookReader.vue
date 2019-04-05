@@ -5,7 +5,10 @@
         class="ebook-reader-mask"
         @click="onMaskClick"
         @touchmove="move"
-        @touchend="moveEnd"></div>
+        @touchend="moveEnd"
+        @mousedown.left="onMouseEnter"
+        @mousemove.left="onMouseMove"
+        @mouseup.left="onMouseEnd"></div>
 </div>
 </template>
 
@@ -33,8 +36,55 @@ global.ePub = Epub;
 export default {
     mixins: [ebookMixin],
     methods: {
+        // 以下是pc端鼠标方法
+        // 1 - 鼠标进入
+        // 2 - 鼠标进入后的移动
+        // 3 - 鼠标从移动状态松手
+        // 4 - 鼠标还原
+
+        onMouseEnter(e) {
+            this.mouseState = 1;
+            this.mouseStartTime = e.timeStamp;
+            e.preventDefault();
+            e.stopPropagation();
+        },
+        onMouseMove(e) {
+            if (this.mouseState === 1) {
+                this.mouseState = 2;
+            } else if (this.mouseState === 2) {
+                let offsetY = 0;
+                if (this.firstOffsetY) {
+                    offsetY = e.clientY - this.firstOffsetY;
+                    this.setOffsetY(offsetY);
+                } else {
+                    this.firstOffsetY = e.clientY;
+                }
+            }
+            e.preventDefault();
+            e.stopPropagation();
+        },
+        onMouseEnd(e) {
+            if (this.mouseState === 2) {
+                this.setOffsetY(0);
+                this.firstOffsetY = null;
+                this.mouseState = 3;
+            } else {
+                this.mouseState === 4;
+            }
+            this.time = e.timeStamp - this.mouseStartTime;
+            if (this.time < 200) {
+                this.mouseState = 4;
+            }
+            e.preventDefault();
+            e.stopPropagation();
+        },
+
         //以下是mask蒙版方法
         onMaskClick (e) {
+            console.log(this.mouseState);
+            if (this.mouseState && (this.mouseState === 2 || this.mouseState === 3)) {
+                return
+            }
             const offsetX = e.offsetX;
             const width = window.innerWidth;
             if (offsetX > 0 && offsetX < width * 0.3) {
@@ -117,7 +167,8 @@ export default {
         initRendition() {
             this.rendition = this.book.renderTo('read', {
                 width: window.innerWidth,
-                height: window.innerHeight
+                height: window.innerHeight,
+                method: 'default'
             });
             const location = getLocation(this.fileName);
             this.display(location, () => {

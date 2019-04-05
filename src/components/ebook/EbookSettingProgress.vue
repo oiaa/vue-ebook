@@ -7,8 +7,8 @@
                 <span class="icon-forward"></span>
             </div>
             <div class="progress-wrapper">
-                <div class="progress-icon-wrapper">
-                    <span class="icon-back" @click="prevSection()"></span>
+                <div class="progress-icon-wrapper" @click="prevSection()">
+                    <span class="icon-back" ></span>
                 </div>
                 <input class="progress" type="range"
                     max="100"
@@ -38,17 +38,6 @@ import { getReadTime } from '../../utils/localStorage';
 
 export default {
     mixins: [ebookMixin],
-    computed: {
-        getSectionName() { //章节名
-            // if (this.section) {
-            //     const sectionInfo = this.currentBook.section(this.section);
-            //     if(sectionInfo && sectionInfo.href && this.currentBook && this.currentBook.navigation) {
-            //         return this.currentBook.navigation.get(sectionInfo.href).label
-            //     }
-            // }
-            return this.section ? this.navigation[this.section].label : ''
-        }
-    },
     methods: {
         onProgressChange(progress) { //进度条拖动松手后的调用方法
             this.setProgress(progress).then(() => {

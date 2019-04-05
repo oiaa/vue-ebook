@@ -27,6 +27,9 @@ export const ebookMixin = {
         ]),
         themeList() {
             return themeList(this)
+        },
+        getSectionName() { //章节名
+            return this.section ? this.navigation[this.section].label : ''
         }
     },
     methods: {
